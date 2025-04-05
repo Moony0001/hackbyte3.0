@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Card from "./Card";
 import { X } from "lucide-react";
 import MultiSelectDropdown from "./MultiSelectDropdown";
-// import Cookies from "js-cookie";
 import { useUser } from "../context/UserContext";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import useUserDetails from "@/hooks/useUserDetails";

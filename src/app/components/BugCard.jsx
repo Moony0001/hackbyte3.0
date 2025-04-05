@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
-import { useUser } from "@/context/UserContext";
-import Dropdown from "./Dropdown"; // hypothetical reusable dropdown
+import { useUser } from "../context/UserContext";
+import DropdownSelect from "./DropdownSelect";
 import EditableField from "./EditableField"; // hypothetical inline text editor
 
 export default function BugCard({ bug, onClose, onUpdate }) {
@@ -83,7 +83,7 @@ export default function BugCard({ bug, onClose, onUpdate }) {
                     <p><span className="font-medium">Found by:</span> {editableBug.created_by_name}</p>
                     <p><span className="font-medium">Assigned Developer:</span> 
                         {isManager ? (
-                            <Dropdown
+                            <DropdownSelect
                                 options={editableBug.developerOptions}
                                 selected={editableBug.assigned_to}
                                 onSelect={val => handleFieldChange("assigned_to", val)}
@@ -96,7 +96,7 @@ export default function BugCard({ bug, onClose, onUpdate }) {
                     <p>
                         <span className="font-medium">Criticality:</span>
                         {(isManager || isDeveloper) ? (
-                            <Dropdown
+                            <DropdownSelect
                                 options={["Low", "Medium", "High", "Critical"]}
                                 selected={editableBug.criticality}
                                 onSelect={val => handleFieldChange("criticality", val)}
@@ -109,10 +109,11 @@ export default function BugCard({ bug, onClose, onUpdate }) {
                     <p>
                         <span className="font-medium">Status:</span>
                         {(isManager || isDeveloper) ? (
-                            <Dropdown
-                                options={["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]}
-                                selected={editableBug.status}
-                                onSelect={val => handleFieldChange("status", val)}
+                            <DropdownSelect
+                            label="Status"
+                            options={["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]}
+                            selectedValue={editableBug.status}
+                            setSelectedValue={val => handleFieldChange("status", val)}
                             />
                         ) : (
                             editableBug.status
@@ -122,10 +123,11 @@ export default function BugCard({ bug, onClose, onUpdate }) {
                     <p>
                         <span className="font-medium">Tag:</span>
                         {(isManager || isDeveloper) ? (
-                            <Dropdown
+                            <DropdownSelect
+                                label="Tag"
                                 options={["UI", "Backend", "Logic", "Performance"]}
-                                selected={editableBug.tag}
-                                onSelect={val => handleFieldChange("tag", val)}
+                                selectedValue={editableBug.tag}
+                                setSelectedValue={val => handleFieldChange("tag", val)}
                             />
                         ) : (
                             editableBug.tag
@@ -135,10 +137,11 @@ export default function BugCard({ bug, onClose, onUpdate }) {
                     <p>
                         <span className="font-medium">Component:</span>
                         {(isManager || isDeveloper) ? (
-                            <Dropdown
+                            <DropdownSelect
+                                label="Component"
                                 options={["Navbar", "Sidebar", "Login", "Dashboard", "not provided"]}
-                                selected={editableBug.component}
-                                onSelect={val => handleFieldChange("component", val)}
+                                selectedValue={editableBug.component}
+                                setSelectedValue={val => handleFieldChange("component", val)}
                             />
                         ) : (
                             editableBug.component
