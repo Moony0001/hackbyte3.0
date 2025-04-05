@@ -1,27 +1,22 @@
-import { supabase } from "../../config/db/supa.js";
+import { supabase } from "@/app/api/config/db/supa.js";
 
 export async function GET(req) {
     try {
-        //Get the currently logged-in user from Supabase
-        const authHeader = req.headers.get("Authorization");
-        if (!authHeader) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+        const { searchParams } = new URL(req.url);
+        const userId = searchParams.get("userId");
+        console.log("User ID:", userId);
+    
+        if (!userId) {
+            return new Response(JSON.stringify({ error: "Missing userId" }), { status:400});
         }
-
-        const token = authHeader.split("Bearer ")[1];
-        const { data: user, error: authError } = await supabase.auth.getUser(token);
-
-        if (authError || !user) {
-            return new Response(JSON.stringify({ error: "Invalid user session" }), { status: 401 });
-        }
-
-        const userId = user.id; // Extract user ID
 
         const { data: userData, error: userError } = await supabase
             .from("users")
             .select("role")
             .eq("id", userId)
             .single();
+
+        console.log("User Data:", userData);
 
         if (userError || !userData) {
             return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
@@ -35,8 +30,10 @@ export async function GET(req) {
             .select("project_id")
             .eq("user_id", userId);
 
+        console.log("User Projects:", userProjects);
+
         if (projectMemberError || !userProjects.length) {
-            return new Response(JSON.stringify({ error: "No projects found for user" }), { status: 404 });
+            return new Response(JSON.stringify({ error: "No projects found for user" }), { status: 202 });
         }
 
         const projectIds = userProjects.map(p => p.project_id);
@@ -61,7 +58,7 @@ export async function GET(req) {
         const finalProjects = await Promise.all(projects.map(async (project) => {
             let bugCount = 0;
 
-            if (userRole === "developer") {
+            if (userRole === "Developer") {
                 const { data: devBugs } = await supabase
                     .from("bugs")
                     .select("id")
@@ -69,7 +66,7 @@ export async function GET(req) {
                     .eq("project_id", project.id);
                 bugCount = devBugs ? devBugs.length : 0;
             } 
-            else if (userRole === "tester") {
+            else if (userRole === "Tester") {
                 const { data: testerBugs } = await supabase
                     .from("bugs")
                     .select("id")
@@ -77,7 +74,7 @@ export async function GET(req) {
                     .eq("project_id", project.id);
                 bugCount = testerBugs ? testerBugs.length : 0;
             } 
-            else if (userRole === "manager") {
+            else if (userRole === "Manager") {
                 const { data: projectBugs } = await supabase
                     .from("bugs")
                     .select("id")

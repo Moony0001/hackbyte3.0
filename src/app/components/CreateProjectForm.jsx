@@ -67,7 +67,6 @@ export default function CreateProjectForm({ setIsModalOpen }) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    // "Authorization": `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     name: project.name,
@@ -78,9 +77,7 @@ export default function CreateProjectForm({ setIsModalOpen }) {
                     manager_id: user.userId,
                 }),
             });
-    
-            // data = await res.json();
-    
+        
             if (!res.ok) {
                 alert(data.error || "Failed to create project.");
                 return;

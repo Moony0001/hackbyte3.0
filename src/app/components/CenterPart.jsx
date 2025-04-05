@@ -14,21 +14,19 @@ export default function CenterPage({ selectedProject, setSelectedProject }) {
 
 
     const clearSelectedProject = () => {
-        // console.log("Clearing selected project");
+        console.log("Clearing selected project");
         localStorage.removeItem("selectedProject");
         setSelectedProject(null);
     };
 
     useEffect(() => {
-
-
         const fetchUserDetails = async () => {
             if (!user?.userId) {
                 console.warn("No userId found, skipping role fetch.");
                 return;
             }
 
-            // console.log("Fetching role for userId:", user.userId);
+            console.log("Fetching role for userId:", user.userId);
             const supabase = createClientComponentClient();
             const { data, error } = await supabase
                 .from("users")
@@ -44,15 +42,14 @@ export default function CenterPage({ selectedProject, setSelectedProject }) {
                 console.log("Fetched user role:", data.role);
                 setRole(data.role);
             }
-            // console.log("User from context:", user.json());
         };
 
         fetchUserDetails();
     }, [user]);
 
-    // console.log("Current role:", role);
-    // console.log("Modal open?", isModalOpen);
-    // console.log("Selected project:", selectedProject);
+    console.log("Current role:", role);
+    console.log("Modal open?", isModalOpen);
+    console.log("Selected project:", selectedProject);
 
     return (
         <div className="p-4 flex items-center justify-center relative w-full">

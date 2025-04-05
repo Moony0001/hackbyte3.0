@@ -111,6 +111,11 @@ export async function POST(req) {
         const projectId = newProject.id;
 
         const projectMembers = [
+            {
+                user_id: manager_id,
+                project_id: projectId,
+                role: "Manager"
+            },
             ...testers.map(user => ({
                 user_id: user.id,
                 project_id: projectId,
