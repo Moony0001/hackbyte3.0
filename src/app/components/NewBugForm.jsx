@@ -69,7 +69,7 @@ export default function NewBugForm({ setIsModalOpen }) {
                             Cancel
                         </button>
                         <button
-                            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                            className="px-4 py-2 bg-blue-500 text-green rounded-md"
                             onClick={handleReportBug}
                         >
                             Report Bug

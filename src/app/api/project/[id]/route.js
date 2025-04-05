@@ -1,4 +1,4 @@
-import { supabase } from "../../../config/db/supa.js";
+import { supabase } from "@/app/api/config/db/supa.js";
 
 export async function GET(req, { params }) {
     try {

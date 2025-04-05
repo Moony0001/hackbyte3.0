@@ -44,11 +44,11 @@ const MultiSelectDropdown = ({ label, options, selected, setSelected }) => {
                         {selected.map((item) => (
                             <div
                                 key={item.id}
-                                className="flex items-center bg-blue-500 text-white px-3 py-1 rounded-full text-sm"
+                                className="flex items-center bg-blue-500 text-green px-3 py-1 rounded-full text-sm"
                             >
                                 {item.name}
                                 <button
-                                    className="ml-2 text-white hover:text-white"
+                                    className="ml-2 text-green hover:text-green"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleRemoveOption(item);

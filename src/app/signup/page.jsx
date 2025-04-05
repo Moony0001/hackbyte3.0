@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import DropdownSelect from "../components/DropdownSelect";
 
@@ -15,6 +15,27 @@ export default function SignupPage() {
         role: "",
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [companyOptions, setCompanyOptions] = useState([]);
+
+    useEffect(() => {
+        const fetchCompanies = async () => {
+            try {
+                const res = await fetch("/api/company");
+                const data = await res.json();
+
+                if (res.ok) {
+                    const names = data.map((company) => company.name);
+                    setCompanyOptions(names);
+                } else {
+                    console.error("Failed to load companies:", data.error);
+                }
+            } catch (err) {
+                console.error("Error fetching companies:", err);
+            }
+        };
+
+        fetchCompanies();
+    }, []);
 
     const onSignUp = async () => {
         try {
@@ -86,7 +107,7 @@ export default function SignupPage() {
                 />
                 <button 
                     type="button"
-                    className="absolute inset-y-0 right-3 flex items-center text-gray-600 cursor-pointer"
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-600 cursor-pointer mb-4"
                     onClick={() => setShowPassword(!showPassword)}
                 >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -102,7 +123,7 @@ export default function SignupPage() {
 
             <DropdownSelect 
                 label="Company" 
-                options={["Google", "Microsoft", "Amazon"]} 
+                options={companyOptions} 
                 selectedValue={user.company} 
                 setSelectedValue={(company) => setUser({ ...user, company })} 
             />
