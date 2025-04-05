@@ -1,13 +1,11 @@
 "use client";
 import { useState } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function Navbar() {
-    const { data: session } = useSession();
     const [searchTerm, setSearchTerm] = useState("");
 
     return (
-        <nav className="grid grid-cols-3 space-between items-center bg-[#295F98] p-8 text-black shadow-lg w-full ">
+        <nav className="absolute grid grid-cols-3 space-between items-center bg-[#295F98] p-8 text-black shadow-lg w-full">
             <div>
                 <img src="../logo.png" alt="APTS" className="h-10" />
             </div>
@@ -21,6 +19,13 @@ export default function Navbar() {
                 />
             </div>
             <div className="place-self-end ">
+                <button
+                    className="bg-[#F2EFE7] px-4 py-2 rounded-lg hover:-translate-y-2 transition"
+                >
+                    Login
+                </button>
+            </div>
+            {/* <div className="place-self-end ">
                 {session ? (
                     <button 
                         onClick={() => signOut()} 
@@ -36,7 +41,7 @@ export default function Navbar() {
                         Login
                     </button>
                 )}
-            </div>
+            </div> */}
         </nav>
     );
 }
