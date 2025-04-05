@@ -1,21 +1,31 @@
-import { supabase } from "../../config/db/supa.js";
+import { supabase } from "../../config/db/supa";
+import { verifyToken } from "@/lib/utils/verifyToken.js";
 
 export async function GET(req) {
     try {
         //Get the currently logged-in user from Supabase
-        const authHeader = req.headers.get("Authorization");
-        if (!authHeader) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+        const cookie = req.headers.get("cookie");
+
+        if (!cookie) {
+            return new Response(JSON.stringify({ error: "Unauthorized: No cookie sent" }), { status: 401 });
         }
 
-        const token = authHeader.split("Bearer ")[1];
-        const { data: user, error: authError } = await supabase.auth.getUser(token);
+        const token = cookie
+            .split(";")
+            .find(c => c.trim().startsWith("jwt="))
+            ?.split("=")[1];
 
-        if (authError || !user) {
-            return new Response(JSON.stringify({ error: "Invalid user session" }), { status: 401 });
+        if (!token) {
+            return new Response(JSON.stringify({ error: "Unauthorized: Token not found in cookies" }), { status: 401 });
         }
 
-        const userId = user.id; // Extract user ID
+        const decoded = verifyToken(token);
+
+        if (!decoded?.userId) {
+            return new Response(JSON.stringify({ error: "Unauthorized: Invalid token" }), { status: 401 });
+        }
+
+        const userId = decoded.userId;
 
         const { data: userData, error: userError } = await supabase
             .from("users")
