@@ -1,5 +1,5 @@
 import { supabase } from "../../config/db/supa.js";
-import { generateTokenAndSetCookie } from "../../lib/utils/generateTokenAndSetCookie.js";
+import { generateTokenAndSetCookie } from "../../../../lib/utils/generateTokenAndSetCookie.js";
 import bcrypt from "bcryptjs";
 
 export async function POST(req) {
