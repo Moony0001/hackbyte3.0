@@ -42,6 +42,8 @@ export default function Sidebar({ setSelectedProject, sidebarOpen, setSidebarOpe
                 <h1 className="font-bold text-lg mb-4">Your Projects</h1>
                 {loading ? (
                     <p>Loading...</p>
+                ) : projects.length === 0 ? (
+                    <p className="text-gray-500 italic">No projects found</p>
                 ) : (
                     projects?.map((project) => (
                         <button
@@ -86,6 +88,8 @@ export default function Sidebar({ setSelectedProject, sidebarOpen, setSidebarOpe
                 <h1 className="font-bold text-lg mb-4">Your Projects</h1>
                 {loading ? (
                     <p>Loading...</p>
+                ) : projects.length === 0 ? (
+                    <p className="text-gray-500 italic">No projects found</p>
                 ) : (
                     projects?.map((project) => (
                         <button
