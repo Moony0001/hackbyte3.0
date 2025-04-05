@@ -68,12 +68,20 @@ export default function CreateProjectForm({ setIsModalOpen }) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    // name: project.name,
+                    // description: project.description,
+                    // testers: project.testers,
+                    // developers: project.developers,
+                    // company_id: data.company_id,
+                    // manager_id: user.userId,
+
                     name: project.name,
                     description: project.description,
-                    testers: project.testers,
-                    developers: project.developers,
+                    testers: project.testers.map(user => user.id),
+                    developers: project.developers.map(user => user.id),
                     company_id: data.company_id,
                     manager_id: user.userId,
+
                 }),
             });
     
@@ -146,7 +154,7 @@ export default function CreateProjectForm({ setIsModalOpen }) {
 
                     <div className="flex justify-end gap-3 mt-4">
                         <button
-                            className="px-4 py-2 bg-gray-300 rounded-md border-2 border-transparent hover:-translate-y-1 hover:shadow-md hover:border-[#6c6969] transition-all duration-200 cursor-pointer"
+                            className="px-4 py-2 bg-gray-300 rounded-md text-black border-2 border-transparent hover:-translate-y-1 hover:shadow-md hover:border-[#6c6969] transition-all duration-200 cursor-pointer"
                             onClick={() => setIsModalOpen(false)}
                         >
                             Cancel

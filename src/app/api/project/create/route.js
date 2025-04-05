@@ -1,103 +1,60 @@
 import { supabase } from "@/app/api/config/db/supa.js";
 
-export async function GET(req) {
+export async function POST(req) {
     try {
-        const { searchParams } = new URL(req.url);
-        const userId = searchParams.get("userId");
-        console.log("User ID:", userId);
-    
-        if (!userId) {
-            return new Response(JSON.stringify({ error: "Missing userId" }), { status:400});
-        }
+        const body = await req.json();
 
-        const { data: userData, error: userError } = await supabase
-            .from("users")
-            .select("role")
-            .eq("id", userId)
+        const {
+            name,
+            description,
+            testers,
+            developers,
+            company_id,
+            manager_id,
+        } = body;
+
+        // 1. Create the project
+        const { data: project, error: projectError } = await supabase
+            .from("projects")
+            .insert([
+                {
+                    name,
+                    description,
+                    company_id,
+                    manager_id,
+                },
+            ])
+            .select()
             .single();
 
-        console.log("User Data:", userData);
-
-        if (userError || !userData) {
-            return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
-        }
-
-        const userRole = userData.role;
-
-        //Fetch all project IDs where the user is a member
-        const { data: userProjects, error: projectMemberError } = await supabase
-            .from("project_members")
-            .select("project_id")
-            .eq("user_id", userId);
-
-        console.log("User Projects:", userProjects);
-
-        if (projectMemberError || !userProjects.length) {
-            return new Response(JSON.stringify({ error: "No projects found for user" }), { status: 202 });
-        }
-
-        const projectIds = userProjects.map(p => p.project_id);
-
-        // 3️⃣ Fetch project details and manager name
-        const { data: projects, error: projectError } = await supabase
-        .from("projects")
-        .select(`
-            id,
-            name,
-            manager_id,
-            users!manager_id(name)
-        `)
-        .in("id", projectIds);
-
-
         if (projectError) {
-            return new Response(JSON.stringify({ error: "Failed to fetch projects" }), { status: 500 });
+            console.error("Project insert error:", projectError);
+            return new Response(JSON.stringify({ error: "Failed to create project" }), { status: 500 });
         }
 
-        // 4️⃣ Fetch role-specific bug statistics
-        const finalProjects = await Promise.all(projects.map(async (project) => {
-            let bugCount = 0;
+        // 2. Prepare members to insert with roles
+        const memberInserts = [
+            ...testers.map(user_id => ({ user_id, project_id: project.id, role: "Tester" })),
+            ...developers.map(user_id => ({ user_id, project_id: project.id, role: "Developer" })),
+            { user_id: manager_id, project_id: project.id, role: "Manager" },
+        ];
 
-            if (userRole === "Developer") {
-                const { data: devBugs } = await supabase
-                    .from("bugs")
-                    .select("id")
-                    .eq("assigned_to", userId)
-                    .eq("project_id", project.id);
-                bugCount = devBugs ? devBugs.length : 0;
-            } 
-            else if (userRole === "Tester") {
-                const { data: testerBugs } = await supabase
-                    .from("bugs")
-                    .select("id")
-                    .eq("reported_by", userId)
-                    .eq("project_id", project.id);
-                bugCount = testerBugs ? testerBugs.length : 0;
-            } 
-            else if (userRole === "Manager") {
-                const { data: projectBugs } = await supabase
-                    .from("bugs")
-                    .select("id")
-                    .eq("project_id", project.id);
-                bugCount = projectBugs ? projectBugs.length : 0;
-            }
+        const { error: memberError } = await supabase
+            .from("project_members")
+            .insert(memberInserts);
 
-            return {
-                id: project.id,
-                name: project.name,
-                manager: project.users?.name || "Unknown",
-                role: userRole,
-                bugCount
-            };
-        }));
+        if (memberError) {
+            console.error("Member insert error:", memberError);
+            return new Response(JSON.stringify({ error: "Failed to add project members" }), { status: 500 });
+        }
 
-        return new Response(JSON.stringify({ projects: finalProjects }), {
+        return new Response(JSON.stringify({ message: "Project created successfully" }), {
             status: 200,
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
         });
 
-    } catch (error) {
-        console.error("Error in getUserProjects:", error);
+    } catch (err) {
+        console.error("Unexpected error:", err);
         return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
     }
 }
