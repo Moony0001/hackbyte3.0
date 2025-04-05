@@ -69,12 +69,20 @@ export default function CreateProjectForm({ setIsModalOpen }) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    // name: project.name,
+                    // description: project.description,
+                    // testers: project.testers,
+                    // developers: project.developers,
+                    // company_id: data.company_id,
+                    // manager_id: user.userId,
+
                     name: project.name,
                     description: project.description,
-                    testers: project.testers,
-                    developers: project.developers,
+                    testers: project.testers.map(user => user.id),
+                    developers: project.developers.map(user => user.id),
                     company_id: data.company_id,
                     manager_id: user.userId,
+
                 }),
             });
     

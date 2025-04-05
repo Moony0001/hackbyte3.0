@@ -31,7 +31,7 @@ const MultiSelectDropdown = ({ label, options, selected, setSelected }) => {
 
     return (
         <div className="w-full text-black relative" ref={dropdownRef}>
-            <label htmlFor="dropdown" className="block font-semibold mb-1">
+            <label htmlFor="dropdown" className="block font-semibold mb-1 text-white">
                 {label}
             </label>
 
