@@ -1,27 +1,16 @@
 "use client";
 import MultiSelectDropdown from "./MultiSelectDropdown";
-import { X } from "lucide-react";
 import useUserDetails from "@/hooks/useUserDetails";
-import { use, useEffect } from "react";
 
 export default function CenterProjectDescription({ selectedProject, setSelectedProject }) {
-    // const testers = ["tester_1", "tester_2", "tester_3", "tester_4"];
-    // const developers = ["dev_1", "dev_2", "dev_3", "dev_4"];
-
-    // useEffect(() => {
-    //     const testers = useUserDetails("Tester").userData;
-    //     const developers = useUserDetails("Developer").userData;
-
-    //     console.log("Testers:", testers);
-    //     console.log("Developers:", developers);
-    // }, [])
-    
     const { userData: testers, error: testersError } = useUserDetails("Tester");
     const { userData: developers, error: devsError } = useUserDetails("Developer");
 
     const setProject = (updatedProject) => {
         setSelectedProject(updatedProject);
     };
+
+    console.log("selectedProject: ", selectedProject);
 
     return (
         <div className="text-center w-80">

@@ -52,7 +52,7 @@ export default function Sidebar({ setSelectedProject, sidebarOpen, setSidebarOpe
                             onClick={() => setSelectedProject(project)}
                         >
                             <Card className="transition-transform duration-200 transform hover:scale-105">
-                                <div>
+                                <div className="p-4 w-60">
                                     <h3 className="font-semibold text-black">Project: {project.name || "Unnamed"}</h3>
                                     <h5 className="text-sm text-gray-600">Manager: {project.manager || "Unknown"}</h5>
                                     <h5 className="text-sm text-black">

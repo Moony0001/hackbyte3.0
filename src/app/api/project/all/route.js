@@ -65,6 +65,7 @@ export async function GET(req) {
         `)
         .in("id", projectIds);
 
+        console.log("projects", projects);
 
         if (projectError) {
             return new Response(JSON.stringify({ error: "Failed to fetch projects" }), { status: 500 });

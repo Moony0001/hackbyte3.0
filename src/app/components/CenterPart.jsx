@@ -6,6 +6,7 @@ import NewBugForm from "./NewBugForm";
 import CenterProjectDescription from "./CenterProjectDescription";
 import { useUser } from "../context/UserContext";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import SolutionForm from "./SolutionForm";
 
 export default function CenterPage({ selectedProject, setSelectedProject }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -89,6 +90,13 @@ export default function CenterPage({ selectedProject, setSelectedProject }) {
                 <>
                     {console.log("Rendering CreateProjectForm for manager")}
                     <CreateProjectForm setIsModalOpen={setIsModalOpen} />
+                </>
+            )}
+
+            {isModalOpen && role === "Developer" && (
+                <>
+                    {console.log("Rendering CreateProjectForm for manager")}
+                    <SolutionForm />
                 </>
             )}
         </div>
