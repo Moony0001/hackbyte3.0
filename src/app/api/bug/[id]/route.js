@@ -13,7 +13,7 @@ export async function GET(req, { params }) {
                 description,
                 solution,
                 status,
-                priority,
+                priority_level,
                 deadline,
                 created_at,
                 updated_at,
@@ -41,7 +41,7 @@ export async function GET(req, { params }) {
             description: bug.description,
             solution: bug.solution || "No solution provided",
             status: bug.status,
-            priority: bug.priority,
+            priority_level: bug.priority_level,
             deadline: bug.deadline || "No deadline assigned",
             created_at: bug.created_at,
             updated_at: bug.updated_at || "Not updated",
@@ -60,6 +60,42 @@ export async function GET(req, { params }) {
 
     } catch (err) {
         console.error("Bug fetch error:", err);
+        return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+    }
+}
+
+
+export async function PATCH(req, { params }) {
+    try {
+        const { id } = params;
+        const updates = await req.json();
+
+        if (!id) {
+            return new Response(JSON.stringify({ error: "Bug ID is required" }), { status: 400 });
+        }
+
+        // Add timestamp to indicate bug update
+        updates.updated_at = new Date();
+
+        const { data, error } = await supabase
+            .from("bugs")
+            .update(updates)
+            .eq("id", id)
+            .select("*")
+            .single();
+
+        if (error) {
+            console.error("Update error:", error);
+            return new Response(JSON.stringify({ error: "Failed to update bug" }), { status: 500 });
+        }
+
+        return new Response(JSON.stringify({ message: "Bug updated successfully", updatedBug: data }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+        });
+
+    } catch (err) {
+        console.error("Bug update error:", err);
         return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
     }
 }
