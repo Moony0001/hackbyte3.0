@@ -5,13 +5,14 @@ export default function CenterProjectDescription({ selectedProject, setSelectedP
     const testers = ["tester_1", "tester_2", "tester_3", "tester_4"];
     const developers = ["dev_1", "dev_2", "dev_3", "dev_4"];
 
-    console.log("selected Projects: ", selectedProject);
 
     return (
-        <div className="text-center">
+        <div className="text-center w-80">
             <h2 className="text-2xl font-bold">{selectedProject.name}</h2>
             <h5 className="text-lg">Tester: {selectedProject.tester}</h5>
             <h5 className="text-lg">Developer: {selectedProject.developer}</h5>
+            <h6 className="text-pink-800"> add project description </h6>
+            <h6 className="text-green-800"> add bug list </h6>
 
             <MultiSelectDropdown
                 label="Testers"
@@ -30,13 +31,6 @@ export default function CenterProjectDescription({ selectedProject, setSelectedP
                     setProject({ ...selectedProject, developers: selectedDevelopers })
                 }
             />
-
-            <button
-                className="mt-4 text-red-500"
-                onClick={() => setSelectedProject(null)}
-            >
-                <X className="w-5 h-5" />
-            </button>
         </div>
     )
 }

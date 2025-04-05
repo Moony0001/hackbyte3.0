@@ -8,15 +8,40 @@ import { Eye, EyeOff } from "lucide-react";
 export default function LoginPage() {
     const router = useRouter();
     const [user, setUser] = useState({
-        identifier: "", // Can be email or username
+        identifier: "",
         password: ""
     });
     const [showPassword, setShowPassword] = useState(false);
 
     const onLogin = async () => {
-        console.log("Logging in with:", user);
+    
+        try {
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: user.identifier,
+                    password: user.password
+                })
+            });
+    
+            const data = await res.json();
+    
+            if (!res.ok) {
+                alert(data.error || "Login failed");
+                return;
+            }
+    
+            alert("Login successful!");
+            router.push("/"); 
+        } catch (error) {
+            console.error("Login error:", error);
+            alert("Something went wrong. Please try again.");
+        }
     };
-
+    
     return (
         <div className="flex flex-col items-center justify-center min-h-screen py-4 w-[90%] max-w-md mx-auto p-6 rounded-lg">
             <h1 className="text-3xl font-bold mb-4">Login</h1>

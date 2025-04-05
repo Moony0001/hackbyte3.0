@@ -1,42 +1,169 @@
-import MultiSelectDropdown from "./MultiSelectDropdown";
+"use client";
+
+import { useState, useEffect } from "react";
+import Card from "./Card";
 import { X } from "lucide-react";
+import MultiSelectDropdown from "./MultiSelectDropdown";
+// import Cookies from "js-cookie";
+import { useUser } from "../context/UserContext";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import useUserDetails from "@/hooks/useUserDetails";
 
-export default function CenterProjectDescription({ selectedProject, setSelectedProject }) {
-    const testers = ["tester_1", "tester_2", "tester_3", "tester_4"];
-    const developers = ["dev_1", "dev_2", "dev_3", "dev_4"];
+export default function CreateProjectForm({ setIsModalOpen }) {
+    const [project, setProject] = useState({
+        name: "",
+        description: "",
+        testers: [],
+        developers: [],
+        company_id: "",
+        manager_id: "",
+    });
 
-    console.log("selected Projects: ", selectedProject);
+    const user = useUser(); 
+
+    const { userData: testerList } = useUserDetails("Tester");
+    const { userData: developerList } = useUserDetails("Developer");
+
+    useEffect(() => {
+        if (testerList) {
+            console.log("Tester List:", testerList);
+        }
+        if (developerList) {
+            console.log("Developer List:", developerList);
+        }
+    }, []);
+    
+
+    useEffect(() => {
+        console.log("User from create Project:", user?.userId);
+    }, [user]);
+
+
+    const handleCreateProject = async () => {
+        try {
+            if (!user) {
+                alert("No user found. Please login again.");
+                return;
+            } else {
+                console.log("User in create project try:", user);
+            }
+
+            const supabase = createClientComponentClient();
+            const { data, error } = await supabase
+                .from("users")
+                .select("company_id")
+                .eq("id", user.userId)
+                .single();
+
+            console.log("usercreateform data from context:", data);
+
+            if (error) {
+                console.error("Error fetching company:", error);
+            } else {
+                console.log("Fetched user company:", data.company_id);
+            }
+    
+            const res = await fetch("/api/project/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    // "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    name: project.name,
+                    description: project.description,
+                    testers: project.testers,
+                    developers: project.developers,
+                    company_id: data.company_id,
+                    manager_id: user.userId,
+                }),
+            });
+    
+            // data = await res.json();
+    
+            if (!res.ok) {
+                alert(data.error || "Failed to create project.");
+                return;
+            }
+    
+            alert("Project created successfully!");
+            setIsModalOpen(false);
+            setProject({ name: "", description: "", testers: [], developers: [] });
+    
+        } catch (error) {
+            console.error("Error creating project:", error);
+            alert("Something went wrong.");
+        }
+    };
+    
 
     return (
-        <div className="text-center">
-            <h2 className="text-2xl font-bold">{selectedProject.name}</h2>
-            <h5 className="text-lg">Tester: {selectedProject.tester}</h5>
-            <h5 className="text-lg">Developer: {selectedProject.developer}</h5>
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[2px] z-9999">
+            <Card>
+                <div className="w-96 bg-white rounded-md relative p-4">
+                    <button
+                        className="absolute top-3 right-3 text-gray-500"
+                        onClick={() => setIsModalOpen(false)}
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
 
-            <MultiSelectDropdown
-                label="Testers"
-                options={testers}
-                selected={selectedProject.testers}
-                setSelected={(selectedTesters) =>
-                    setProject({ ...selectedProject, testers: selectedTesters })
-                }
-            />
+                    <h2 className="text-xl font-bold mb-4">Create New Project</h2>
 
-            <MultiSelectDropdown
-                label="Developers"
-                options={developers}
-                selected={selectedProject.developers}
-                setSelected={(selectedDevelopers) =>
-                    setProject({ ...selectedProject, developers: selectedDevelopers })
-                }
-            />
+                    <input
+                        type="text"
+                        placeholder="Project Name"
+                        className="w-full border p-2 rounded-md mb-3"
+                        value={project.name}
+                        onChange={(e) =>
+                            setProject({ ...project, name: e.target.value })
+                        }
+                    />
 
-            <button
-                className="mt-4 text-red-500"
-                onClick={() => setSelectedProject(null)}
-            >
-                <X className="w-5 h-5" />
-            </button>
+                    <textarea
+                        placeholder="Project Description"
+                        className="w-full border p-2 rounded-md mb-4"
+                        rows="3"
+                        value={project.description}
+                        onChange={(e) =>
+                            setProject({ ...project, description: e.target.value })
+                        }
+                    />
+
+                    <MultiSelectDropdown
+                        label="Testers"
+                        options={testerList || []}
+                        selected={project.testers}
+                        setSelected={(selectedTesters) =>
+                            setProject({ ...project, testers: selectedTesters })
+                        }
+                    />
+
+                    <MultiSelectDropdown
+                        label="Developers"
+                        options={developerList || []}
+                        selected={project.developers}
+                        setSelected={(selectedDevelopers) =>
+                            setProject({ ...project, developers: selectedDevelopers })
+                        }
+                    />
+
+                    <div className="flex justify-end gap-3 mt-4">
+                        <button
+                            className="px-4 py-2 bg-gray-300 rounded-md"
+                            onClick={() => setIsModalOpen(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                            onClick={handleCreateProject}
+                        >
+                            Create Project
+                        </button>
+                    </div>
+                </div>
+            </Card>
         </div>
-    )
+    );
 }

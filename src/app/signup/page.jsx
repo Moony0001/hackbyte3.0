@@ -11,17 +11,37 @@ export default function SignupPage() {
         email: "",
         password: "",
         username: "",
-        companyName: "",
+        company: "",
         role: "",
     });
     const [showPassword, setShowPassword] = useState(false);
 
     const onSignUp = async () => {
-        console.log("User:", user);
+        try {
+            const res = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(user),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.error || "Signup failed");
+                return;
+            }
+
+            alert("Signup successful!");
+        } catch (error) {
+            console.error("Signup error:", error);
+            alert("Something went wrong. Please try again.");
+        }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen py-4 w-[90%] max-w-md mx-auto p-6 rounded-lg">
+        <div className="flex flex-col items-center justify-center min-h-screen py-4 w-[90%] max-w-md mx-auto p-6 rounded-lg py-[10em]">
             <h1 className="text-3xl font-bold mb-4">Sign Up</h1>
 
             <label htmlFor="username" className="w-full font-medium">Username</label>
@@ -62,7 +82,7 @@ export default function SignupPage() {
                     value={user.password}
                     onChange={(e) => setUser({ ...user, password: e.target.value })}
                     placeholder="Enter password"
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-600"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-600 mb-4"
                 />
                 <button 
                     type="button"
@@ -72,16 +92,6 @@ export default function SignupPage() {
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
             </div>
-
-            <label htmlFor="companyName" className="w-full font-medium">Company Name</label>
-            <input 
-                id="companyName"
-                type="text"
-                value={user.companyName}
-                onChange={(e) => setUser({ ...user, companyName: e.target.value })}
-                placeholder="Enter name"
-                className="w-full p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
-            />
 
             <DropdownSelect 
                 label="Role" 
@@ -93,24 +103,9 @@ export default function SignupPage() {
             <DropdownSelect 
                 label="Company" 
                 options={["Google", "Microsoft", "Amazon"]} 
-                selectedValue={user.companyName} 
-                setSelectedValue={(companyName) => setUser({ ...user, companyName })} 
+                selectedValue={user.company} 
+                setSelectedValue={(company) => setUser({ ...user, company })} 
             />
-            
-            {/* 
-            {user.role === "Manager" && (
-                <div className="w-full">
-                    <label htmlFor="token" className="w-full font-medium">Token</label>
-                    <input 
-                        id="token"
-                        type="token"
-                        value={user.token}
-                        onChange={(e) => setUser({ ...user, token: e.target.value })}
-                        placeholder="Enter token"
-                        className="w-full p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
-                    />
-                </div>
-            )} */}
 
             <button 
                 className="w-full p-2 bg-gray-800 text-white rounded-lg mb-4 hover:bg-gray-700"

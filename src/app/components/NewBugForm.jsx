@@ -10,7 +10,6 @@ export default function NewBugForm({ setIsModalOpen }) {
     });
 
     const handleReportBug = () => {
-        console.log("bug Details:", bug);
         setIsModalOpen(false);
         setBug({
             projectName: "",
@@ -49,6 +48,16 @@ export default function NewBugForm({ setIsModalOpen }) {
                         value={bug.title}
                         onChange={(e) =>
                             setBug({ ...bug, title: e.target.value })
+                        }
+                    />
+
+                    <textarea
+                        type="text"
+                        placeholder="Bug Description"
+                        className="w-full border p-2 rounded-md mb-3"
+                        value={bug.description}
+                        onChange={(e) =>
+                            setBug({ ...bug, description: e.target.value })
                         }
                     />
 
