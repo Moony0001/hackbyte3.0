@@ -1,6 +1,8 @@
 "use client";
 import { X } from "lucide-react";
 import Card from "./Card";
+import { useEffect, useState } from "react";
+// import supabase from "@/app/api/config/db/supa";
 
 export default function Sidebar({ setSelectedProject, sidebarOpen, setSidebarOpen }) {
     const projects = [

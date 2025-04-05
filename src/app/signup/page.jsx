@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import RoleSelect from "../components/RoleSelect";
+import DropdownSelect from "../components/DropdownSelect";
 
 export default function SignupPage() {
     const [user, setUser] = useState({
@@ -11,8 +11,8 @@ export default function SignupPage() {
         email: "",
         password: "",
         username: "",
+        companyName: "",
         role: "",
-        token: "",
     });
     const [showPassword, setShowPassword] = useState(false);
 
@@ -23,16 +23,6 @@ export default function SignupPage() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen py-4 w-[90%] max-w-md mx-auto p-6 rounded-lg">
             <h1 className="text-3xl font-bold mb-4">Sign Up</h1>
-            
-            <label htmlFor="name" className="w-full font-medium">Name</label>
-            <input 
-                id="name"
-                type="text"
-                value={user.name}
-                onChange={(e) => setUser({ ...user, name: e.target.value })}
-                placeholder="Enter name"
-                className="w-full p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
-            />
 
             <label htmlFor="username" className="w-full font-medium">Username</label>
             <input 
@@ -41,6 +31,16 @@ export default function SignupPage() {
                 value={user.username}
                 onChange={(e) => setUser({ ...user, username: e.target.value })}
                 placeholder="Enter username"
+                className="w-full p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
+            />
+
+            <label htmlFor="name" className="w-full font-medium">Name</label>
+            <input 
+                id="name"
+                type="text"
+                value={user.name}
+                onChange={(e) => setUser({ ...user, name: e.target.value })}
+                placeholder="Enter name"
                 className="w-full p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
             />
 
@@ -73,8 +73,31 @@ export default function SignupPage() {
                 </button>
             </div>
 
-            <RoleSelect user={user} setUser={setUser} />
+            <label htmlFor="companyName" className="w-full font-medium">Company Name</label>
+            <input 
+                id="companyName"
+                type="text"
+                value={user.companyName}
+                onChange={(e) => setUser({ ...user, companyName: e.target.value })}
+                placeholder="Enter name"
+                className="w-full p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
+            />
 
+            <DropdownSelect 
+                label="Role" 
+                options={["Manager", "Developer", "Tester"]} 
+                selectedValue={user.role} 
+                setSelectedValue={(role) => setUser({ ...user, role })} 
+            />
+
+            <DropdownSelect 
+                label="Company" 
+                options={["Google", "Microsoft", "Amazon"]} 
+                selectedValue={user.companyName} 
+                setSelectedValue={(companyName) => setUser({ ...user, companyName })} 
+            />
+            
+            {/* 
             {user.role === "Manager" && (
                 <div className="w-full">
                     <label htmlFor="token" className="w-full font-medium">Token</label>
@@ -87,7 +110,7 @@ export default function SignupPage() {
                         className="w-full p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
                     />
                 </div>
-            )}
+            )} */}
 
             <button 
                 className="w-full p-2 bg-gray-800 text-white rounded-lg mb-4 hover:bg-gray-700"

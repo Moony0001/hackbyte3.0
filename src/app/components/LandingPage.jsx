@@ -1,41 +1,88 @@
-"use client";
-import { useState } from "react";
-import Sidebar from "./Sidebar";
-import CenterPage from "./CenterPart";
-import { Menu } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 
-export default function LandingPage() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+const MultiSelectDropdown = ({ label, options, selected, setSelected }) => {
+    const dropdownRef = useRef(null);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const filteredOptions = options.filter(option => 
+        option.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleSelectOption = (option) => {
+        if (!selected?.includes(option)) {
+            setSelected([...selected, option]);
+        }
+    };
+
+    const handleRemoveOption = (option) => {
+        setSelected(selected.filter((item) => item !== option));
+    };
 
     return (
-        <div className="min-h-screen">
-            <div className="absolute top-30 left-5 md:hidden">
-                <button onClick={() => setSidebarOpen(true)}>
-                    <Menu className="w-8 h-8 text-gray-800" />
-                </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-[20%_70%] min-h-screen">
-                <div className="hidden md:block bg-gray-200 p-4">
-                    <Sidebar />
-                </div>
-                <div className="bg-white p-4">
-                    <CenterPage />
-                </div>
-            </div>
-
-            <div
-                className={`fixed top-0 left-0 h-full w-[70%] bg-white p-4 shadow-lg transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
-                style={{ zIndex: 50 }}
+        <div className="w-full relative" ref={dropdownRef}>
+            <label htmlFor="dropdown" className="block font-semibold mb-1">{label}</label>
+            
+            <div 
+                className="w-full p-2 border border-gray-300 rounded-sm mb-4 focus:outline-none focus:border-gray-600 cursor-pointer"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-                <button
-                    className="absolute top-4 right-4 text-gray-600"
-                    onClick={() => setSidebarOpen(false)}
-                >
-                    ✖
-                </button>
-                <Sidebar />
+                {selected?.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                        {selected.map((item) => (
+                            <div key={item} className="flex items-center bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                                {item}
+                                <button 
+                                    className="ml-2 text-white hover:text-white"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoveOption(item);
+                                    }}
+                                >
+                                    ✖
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-gray-600">Select {label.toLowerCase()}...</p>
+                )}
             </div>
+
+            {dropdownOpen && (
+                <div className="absolute w-full bg-white border border-gray-300 rounded-sm shadow-md mt-1 z-10 max-h-60 overflow-auto">
+                    {/* Search input field */}
+                    <input
+                        type="text"
+                        placeholder={`Search ${label.toLowerCase()}...`}
+                        className="w-full p-2 border-b border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    
+                    {/* Filtered options */}
+                    {filteredOptions.map((option) => (
+                        <div 
+                            key={option} 
+                            className="p-2 hover:bg-gray-200 cursor-pointer"
+                            onClick={() => handleSelectOption(option)}
+                        >
+                            {option}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
-}
+};
+
+export default MultiSelectDropdown;
