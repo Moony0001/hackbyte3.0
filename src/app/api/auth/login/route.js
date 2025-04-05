@@ -1,4 +1,4 @@
-import { generateTokenAndSetCookie } from "../../lib/utils/generateTokenAndSetCookie.js";
+import { generateTokenAndSetCookie } from "../../../../lib/utils/generateTokenAndSetCookie.js";
 import { supabase } from "../../config/db/supa.js";
 
 export async function POST(req) {
