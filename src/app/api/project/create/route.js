@@ -33,7 +33,10 @@ export async function GET(req) {
         console.log("User Projects:", userProjects);
 
         if (projectMemberError || !userProjects.length) {
-            return new Response(JSON.stringify({ error: "No projects found for user" }), { status: 202 });
+            return new Response(JSON.stringify({ projects: [] }), {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+            });
         }
 
         const projectIds = userProjects.map(p => p.project_id);

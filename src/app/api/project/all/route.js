@@ -46,7 +46,10 @@ export async function GET(req) {
             .eq("user_id", userId);
 
         if (projectMemberError || !userProjects.length) {
-            return new Response(JSON.stringify({ error: "No projects found for user" }), { status: 404 });
+            return new Response(JSON.stringify({ projects: [] }), {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+            });
         }
 
         const projectIds = userProjects.map(p => p.project_id);

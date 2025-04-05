@@ -23,7 +23,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="absolute top-30 left-4 md:hidden z-9">
+      <div className="absolute top-35 left-4 md:hidden z-9">
         <button onClick={() => setSidebarOpen(true)}>
           <Menu className="w-8 h-8 text-gray-800" />
         </button>

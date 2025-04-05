@@ -30,13 +30,13 @@ const MultiSelectDropdown = ({ label, options, selected, setSelected }) => {
     };
 
     return (
-        <div className="w-full relative" ref={dropdownRef}>
+        <div className="w-full text-black relative" ref={dropdownRef}>
             <label htmlFor="dropdown" className="block font-semibold mb-1">
                 {label}
             </label>
 
             <div
-                className="w-full p-2 border border-gray-300 rounded-sm mb-4 focus:outline-none focus:border-gray-600 cursor-pointer"
+                className="w-full p-2 border border-gray-600 rounded-sm mb-4 focus:outline-none focus:border-gray-600 cursor-pointer"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
             >
                 {selected?.length > 0 ? (
@@ -44,7 +44,7 @@ const MultiSelectDropdown = ({ label, options, selected, setSelected }) => {
                         {selected.map((item) => (
                             <div
                                 key={item.id}
-                                className="flex items-center bg-blue-500 text-green px-3 py-1 rounded-full text-sm"
+                                className="flex items-center bg-[#9A0100] text-green px-3 py-1 rounded-full text-sm"
                             >
                                 {item.name}
                                 <button
@@ -60,16 +60,16 @@ const MultiSelectDropdown = ({ label, options, selected, setSelected }) => {
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-600">Select {label.toLowerCase()}...</p>
+                    <p className="text-gray-500">Select {label.toLowerCase()}...</p>
                 )}
             </div>
 
             {dropdownOpen && (
-                <div className="absolute w-full bg-white border border-gray-300 rounded-sm shadow-md mt-1 z-10 max-h-60 overflow-auto">
+                <div className="absolute w-full bg-white border border-gray-600 rounded-sm shadow-md mt-1 z-10 max-h-60 overflow-auto">
                     <input
                         type="text"
                         placeholder={`Search ${label.toLowerCase()}...`}
-                        className="w-full p-2 border-b border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full p-2 border-b border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
