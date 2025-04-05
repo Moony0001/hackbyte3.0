@@ -52,10 +52,8 @@ export default function Navbar() {
 
 
     return (
-        <nav className="fixed grid grid-cols-3 items-center bg-[#295F98] p-8 text-black shadow-lg w-full z-50">
-            <div>
-                <img src="/logo.png" alt="APTS" className="h-10" />
-            </div>
+        <nav className="fixed grid grid-cols-3 items-center bg-[#F91E34] text-black shadow-lg w-full z-50">
+            <img src="/logo.png" alt="APTS" className="h-30" />
 
             <div>
                 <input
@@ -75,7 +73,7 @@ export default function Navbar() {
                             src="https://i.pinimg.com/736x/66/9d/66/669d6694bf9e1047f5d925a281ce48bc.jpg"
                             alt="Profile"
                             onClick={() => setDropdownOpen((prev) => !prev)}
-                            className="h-10 w-10 rounded-full cursor-pointer border border-white hover:opacity-90 transition"
+                            className="h-15 w-15 rounded-full cursor-pointer border border-white hover:opacity-90 transition relative bottom-8 right-10"
                         />
                         {dropdownOpen && (
                             <div className="absolute right-0 mt-2 bg-white border border-gray-300 rounded-md shadow-md z-10 w-32">
@@ -92,7 +90,7 @@ export default function Navbar() {
                     mounted && (
                         <Link
                             href="/login"
-                            className="bg-[#F2EFE7] px-4 py-2 rounded-lg hover:-translate-y-2 transition inline-block"
+                            className="bg-[#F2EFE7] px-4 py-2 rounded-lg hover:-translate-y-2 transition inline-block relative bottom-10 right-10"
                         >
                             Login
                         </Link>

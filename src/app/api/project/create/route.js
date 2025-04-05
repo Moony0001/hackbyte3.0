@@ -1,27 +1,22 @@
-import { supabase } from "../../config/db/supa.js";
+import { supabase } from "@/app/api/config/db/supa.js";
 
 export async function GET(req) {
     try {
-        //Get the currently logged-in user from Supabase
-        const authHeader = req.headers.get("Authorization");
-        if (!authHeader) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+        const { searchParams } = new URL(req.url);
+        const userId = searchParams.get("userId");
+        console.log("User ID:", userId);
+    
+        if (!userId) {
+            return new Response(JSON.stringify({ error: "Missing userId" }), { status:400});
         }
-
-        const token = authHeader.split("Bearer ")[1];
-        const { data: user, error: authError } = await supabase.auth.getUser(token);
-
-        if (authError || !user) {
-            return new Response(JSON.stringify({ error: "Invalid user session" }), { status: 401 });
-        }
-
-        const userId = user.id; // Extract user ID
 
         const { data: userData, error: userError } = await supabase
             .from("users")
             .select("role")
             .eq("id", userId)
             .single();
+
+        console.log("User Data:", userData);
 
         if (userError || !userData) {
             return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
@@ -35,37 +30,66 @@ export async function GET(req) {
             .select("project_id")
             .eq("user_id", userId);
 
+        console.log("User Projects:", userProjects);
+
         if (projectMemberError || !userProjects.length) {
-            return new Response(JSON.stringify({ error: "No projects found for user" }), { status: 404 });
+            return new Response(JSON.stringify({ error: "No projects found for user" }), { status: 202 });
         }
 
-        const projectId = newProject.id;
+        const projectIds = userProjects.map(p => p.project_id);
 
-        const projectMembers = [
-            {
-                user_id: manager_id,
-                project_id: projectId,
-                role: "Manager"
-            },
-            ...testers.map(user => ({
-                user_id: user.id,
-                project_id: projectId,
-                role: "Tester"
-            })),
-            ...developers.map(user => ({
-                user_id: user.id,
-                project_id: projectId,
-                role: "Developer"
-            }))
-        ];
+        // 3️⃣ Fetch project details and manager name
+        const { data: projects, error: projectError } = await supabase
+        .from("projects")
+        .select(`
+            id,
+            name,
+            manager_id,
+            users!manager_id(name)
+        `)
+        .in("id", projectIds);
 
-        if (projectMembers.length > 0) {
-            const { error: memberError } = await supabase.from("project_members").insert(projectMembers);
 
-            if (memberError) {
-                return new Response(JSON.stringify({ error: "Failed to assign members to project" }), { status: 500 });
+        if (projectError) {
+            return new Response(JSON.stringify({ error: "Failed to fetch projects" }), { status: 500 });
+        }
+
+        // 4️⃣ Fetch role-specific bug statistics
+        const finalProjects = await Promise.all(projects.map(async (project) => {
+            let bugCount = 0;
+
+            if (userRole === "Developer") {
+                const { data: devBugs } = await supabase
+                    .from("bugs")
+                    .select("id")
+                    .eq("assigned_to", userId)
+                    .eq("project_id", project.id);
+                bugCount = devBugs ? devBugs.length : 0;
+            } 
+            else if (userRole === "Tester") {
+                const { data: testerBugs } = await supabase
+                    .from("bugs")
+                    .select("id")
+                    .eq("reported_by", userId)
+                    .eq("project_id", project.id);
+                bugCount = testerBugs ? testerBugs.length : 0;
+            } 
+            else if (userRole === "Manager") {
+                const { data: projectBugs } = await supabase
+                    .from("bugs")
+                    .select("id")
+                    .eq("project_id", project.id);
+                bugCount = projectBugs ? projectBugs.length : 0;
             }
-        }
+
+            return {
+                id: project.id,
+                name: project.name,
+                manager: project.users?.name || "Unknown",
+                role: userRole,
+                bugCount
+            };
+        }));
 
         return new Response(JSON.stringify({ projects: finalProjects }), {
             status: 200,

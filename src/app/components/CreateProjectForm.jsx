@@ -77,7 +77,7 @@ export default function CreateProjectForm({ setIsModalOpen }) {
                     manager_id: user.userId,
                 }),
             });
-        
+    
             if (!res.ok) {
                 alert(data.error || "Failed to create project.");
                 return;
@@ -97,9 +97,9 @@ export default function CreateProjectForm({ setIsModalOpen }) {
     return (
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[2px] z-9999">
             <Card>
-                <div className="w-96 bg-white rounded-md relative p-4">
+                <div className="w-96 bg-black rounded-md relative p-4 border-[#FA1C32]">
                     <button
-                        className="absolute top-3 right-3 text-gray-500"
+                        className="absolute top-3 right-3 text-[#F91E34]"
                         onClick={() => setIsModalOpen(false)}
                     >
                         <X className="w-5 h-5" />
@@ -147,18 +147,19 @@ export default function CreateProjectForm({ setIsModalOpen }) {
 
                     <div className="flex justify-end gap-3 mt-4">
                         <button
-                            className="px-4 py-2 bg-gray-300 rounded-md"
+                            className="px-4 py-2 bg-gray-300 rounded-md border-2 border-transparent hover:-translate-y-1 hover:shadow-md hover:border-[#6c6969] transition-all duration-200 cursor-pointer"
                             onClick={() => setIsModalOpen(false)}
                         >
                             Cancel
                         </button>
                         <button
-                            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                            className="px-4 py-2 bg-[#F91E34] text-black rounded-md border-2 border-transparent hover:-translate-y-1 hover:shadow-md hover:border-[#3b2225] transition-all duration-200 cursor-pointer"
                             onClick={handleCreateProject}
                         >
                             Create Project
                         </button>
                     </div>
+
                 </div>
             </Card>
         </div>
