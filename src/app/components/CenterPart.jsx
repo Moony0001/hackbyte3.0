@@ -96,7 +96,7 @@ export default function CenterPage({ selectedProject, setSelectedProject }) {
             {isModalOpen && role === "Developer" && (
                 <>
                     {console.log("Rendering CreateProjectForm for manager")}
-                    <SolutionForm />
+                    <SolutionForm bugName="Bug Name Here" onClose={() => setIsModalOpen(false)} />
                 </>
             )}
         </div>
