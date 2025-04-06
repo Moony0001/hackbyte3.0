@@ -1,15 +1,31 @@
 import { supabase } from "@/app/api/config/db/supa.js";
+import { verifyToken } from "@/lib/utils/verifyToken.js";
+import { NextResponse } from "next/server";
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
     try {
-        const { id } = params;
-        const url = new URL(req.url);
-        const page = parseInt(url.searchParams.get("page")) || 1;
-        const limit = 10;
-        const offset = (page - 1) * limit;
+        const { id } = context.params;
 
-        const userId = req.headers.get("user_id");
-        const userRole = req.headers.get("role");
+        const token = req.cookies.get("jwt")?.value;
+
+        if (!token) {
+            return NextResponse.json({ error: "Unauthorized: Missing token" }, { status: 401 });
+        }
+
+        const decoded = verifyToken(token);
+        if (!decoded) {
+            return NextResponse.json({ error: "Unauthorized: Invalid token" }, { status: 401 });
+        }
+
+        const url = new URL(req.url);
+
+        const userId = decoded.userId;
+
+        const { data: userRole, error: userError } = await supabase
+            .from("users")
+            .select("role")
+            .eq("id", userId)
+            .single();
 
         if (!userId || !userRole) {
             return new Response(JSON.stringify({ error: "Unauthorized: Missing user info" }), { status: 401 });
@@ -87,7 +103,6 @@ export async function GET(req, { params }) {
             bugsQuery = bugsQuery.eq("created_by", userId);
         }
 
-        bugsQuery = bugsQuery.range(offset, offset + limit - 1);
 
         const { data: bugs, error: bugsError } = await bugsQuery;
 
@@ -125,7 +140,6 @@ export async function GET(req, { params }) {
             return new Response(JSON.stringify({ error: "Failed to fetch bug count" }), { status: 500 });
         }
 
-        const totalPages = Math.ceil(totalBugs / limit);
 
         const response = {
             id: project.id,
@@ -138,12 +152,6 @@ export async function GET(req, { params }) {
             testers,
             bugs,
             assignedBugs: userRole === "developer" ? assignedBugs : undefined,
-            pagination: {
-                currentPage: page,
-                totalPages,
-                totalBugs,
-                limit
-            }
         };
 
         return new Response(JSON.stringify(response), {

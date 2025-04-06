@@ -19,7 +19,7 @@ export default function NewBugForm({ setIsModalOpen }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[2px] z-9999">
+        <div className="fixed inset-0 flex items-center text-black justify-center backdrop-blur-[2px] z-9999">
             <Card>
                 <div className="w-96 bg-white rounded-md relative p-4">
                     <button
@@ -69,7 +69,7 @@ export default function NewBugForm({ setIsModalOpen }) {
                             Cancel
                         </button>
                         <button
-                            className="px-4 py-2 bg-blue-500 text-green rounded-md"
+                            className="px-4 py-2 bg-[#F91E34] text-green rounded-md"
                             onClick={handleReportBug}
                         >
                             Report Bug

@@ -3,6 +3,8 @@ import { verifyToken } from "@/lib/utils/verifyToken.js";
 
 export async function GET(req) {
     try {
+
+
         //Get the currently logged-in user from Supabase
         const cookie = req.headers.get("cookie");
 
@@ -27,6 +29,8 @@ export async function GET(req) {
 
         const userId = decoded.userId;
 
+        console.log("Decoded Token:", decoded);
+
         const { data: userData, error: userError } = await supabase
             .from("users")
             .select("role")
@@ -36,6 +40,8 @@ export async function GET(req) {
         if (userError || !userData) {
             return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
         }
+
+        console.log("User error in the backend for projects:", userError);
 
         const userRole = userData.role;
 
@@ -52,6 +58,8 @@ export async function GET(req) {
             });
         }
 
+        console.log("User Projects:", userProjects);
+
         const projectIds = userProjects.map(p => p.project_id);
 
         // 3️⃣ Fetch project details and manager name
@@ -65,7 +73,7 @@ export async function GET(req) {
         `)
         .in("id", projectIds);
 
-        console.log("projects", projects);
+        console.log("Projects Data:", projects);
 
         if (projectError) {
             return new Response(JSON.stringify({ error: "Failed to fetch projects" }), { status: 500 });

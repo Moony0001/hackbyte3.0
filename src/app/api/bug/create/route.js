@@ -1,19 +1,16 @@
 import { supabase } from "../../../config/db/supa.js";
-
-//YOUR ML MODEL HERE?
-
+import { Client } from "@gradio/client";
 
 
 export async function POST(req) {
     try {
         const body = await req.json();
 
-        const {
+        let {
             project_name,
             description,
-            title, // Editable RAG generated title
-            priority, // ML generated priority (e.g., 'LOW', 'MEDIUM', 'HIGH')
-            created_by, // user_id of the tester
+            title, // maybe blank or user editable after RAG
+            created_by,
             component = "not provided" // default value
         } = body;
 
@@ -28,10 +25,34 @@ export async function POST(req) {
             return new Response(JSON.stringify({ error: "Project not found" }), { status: 404 });
         }
 
+        const projectId = project.id;
+
         const now = new Date().toISOString();
 
 
         //GET PRIORITY FROM ML MODEL
+
+        const client = await Client.connect("infinityy/Triage");
+
+        if (!title) {
+            const titleResult = await client.predict("/predict", {
+                component,
+                description,
+                pid: projectId.toString(),
+                mode: "title"
+            });
+
+            title = titleResult?.data || "Untitled Bug"; // fallback
+        }
+
+        const priorityResult = await client.predict("/predict", {
+            component,
+            title,
+            description,
+            mode: "priority"
+        });
+
+        const priority = priorityResult?.data?.toUpperCase?.() || "MEDIUM"; // fallback
 
         // 2. Insert new bug
         const { data: newBug, error: insertError } = await supabase
@@ -41,7 +62,7 @@ export async function POST(req) {
                     title,
                     description,
                     status: "OPEN",
-                    priority,
+                    priority_level: priority,
                     created_by,
                     component,
                     project_id: project.id,
