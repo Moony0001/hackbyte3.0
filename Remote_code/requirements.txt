@@ -1,0 +1,12 @@
+gradio
+transformers==4.39.3
+torch
+safetensors
+xgboost
+joblib
+pandas
+numpy
+google-genai
+python-dotenv
+supabase
+scikit-learn
