@@ -1,4 +1,4 @@
-import { supabase } from "../../../config/db/supa.js";
+import { supabase } from "../../config/db/supa";
 import { Client } from "@gradio/client";
 
 
@@ -14,7 +14,7 @@ export async function POST(req) {
             component = "not provided" // default value
         } = body;
 
-        // 1. Get project_id using project_name
+        
         const { data: project, error: projectError } = await supabase
             .from("projects")
             .select("id")
@@ -34,7 +34,7 @@ export async function POST(req) {
 
         const client = await Client.connect("infinityy/Triage");
 
-        if (!title) {
+        if (!title || title.trim() === "") {
             const titleResult = await client.predict("/predict", {
                 component,
                 description,

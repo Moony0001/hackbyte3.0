@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import Card from "./Card";
 import { X } from "lucide-react";
+import { useUser } from "../context/UserContext";
 
 export default function NewBugForm({ setIsModalOpen }) {
     const [bug, setBug] = useState({
@@ -9,14 +10,60 @@ export default function NewBugForm({ setIsModalOpen }) {
         description: "",
     });
 
-    const handleReportBug = () => {
-        setIsModalOpen(false);
-        setBug({
-            projectName: "",
-            title: "",
-            description: "",
-        });
+    const user = useUser();
+
+    const handleReportBug = async () => {
+        try {
+
+            if (!user) {
+                alert("No user found. Please login again.");
+                return;
+            } else {
+                console.log("User in create project try:", user);
+            }
+
+            if (!bug.projectName || !bug.description) {
+                alert("Project name and description are required.");
+                return;
+            }
+
+            const response = await fetch("/api/bug/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    project_name: bug.projectName,
+                    title: bug.title, // can be empty string
+                    description: bug.description,
+                    created_by: user.userId, // <- Replace this with real user info
+                    component: "not provided" // or make it editable in the form
+                })
+            });
+    
+            const result = await response.json();
+    
+            if (!response.ok) {
+                console.error("Error reporting bug:", result.error);
+                alert("Failed to report bug: " + result.error);
+                return;
+            }
+    
+            console.log("Bug reported successfully:", result);
+    
+            // Reset form and close modal
+            setBug({
+                projectName: "",
+                title: "",
+                description: "",
+            });
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Unexpected error:", error);
+            alert("Unexpected error while reporting bug.");
+        }
     };
+    
 
     return (
         <div className="fixed inset-0 flex items-center text-black justify-center backdrop-blur-[2px] z-9999">
