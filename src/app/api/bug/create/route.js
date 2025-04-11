@@ -11,7 +11,8 @@ export async function POST(req) {
             description,
             title, // maybe blank or user editable after RAG
             created_by,
-            component = "not provided" // default value
+            component = "not provided", // default value
+            embeddings = [0], // default value
         } = body;
 
         
@@ -37,22 +38,37 @@ export async function POST(req) {
         if (!title || title.trim() === "") {
             const titleResult = await client.predict("/predict", {
                 component,
+                title: "placeholder",
                 description,
                 pid: projectId.toString(),
                 mode: "title"
             });
 
-            title = titleResult?.data || "Untitled Bug"; // fallback
+            console.log("Title Result:", titleResult);
+            const cleaned = titleResult.data[0].replace(/'/g, '"');
+
+            const parsed = JSON.parse(cleaned);
+            console.log("Parsed Title Result:", parsed);
+
+            title = parsed.title || "Untitled Bug"; // fallback to default title
+            embeddings = parsed.embedding || [0]; // fallback to default embedding
         }
+        
+
+        
 
         const priorityResult = await client.predict("/predict", {
             component,
-            title,
+            title: title[0],
             description,
             mode: "priority"
         });
 
-        const priority = priorityResult?.data?.toUpperCase?.() || "MEDIUM"; // fallback
+        // Check if priorityResult is valid and contains the expected data
+        console.log("Priority Result:", priorityResult);
+
+        const priority = priorityResult?.data[0] || "5"; // fallback
+        console.log("Parsed Priority Result:", priority);
 
         // 2. Insert new bug
         const { data: newBug, error: insertError } = await supabase
@@ -68,7 +84,8 @@ export async function POST(req) {
                     project_id: project.id,
                     created_at: now,
                     updated_at: now,
-                    upvotes: 0
+                    upvotes: 0,
+                    embeddings
                 }
             ])
             .select()
