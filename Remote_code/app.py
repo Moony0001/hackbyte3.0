@@ -60,11 +60,11 @@ def retrieve_similar_documents(component, description,pid):
 }).execute()
 
     if not response.data:
-        return None, new_doc_text
+        return None, new_doc_text,new_embedding
     outputs=[]
     for i in response.data:
         outputs.append(i)
-    return outputs,new_doc_text
+    return outputs,new_doc_text,new_embedding
 
 def generate_title(soft_prompt, new_document):
     soft_prompt_examples = '\n\n'.join(
@@ -82,7 +82,7 @@ def generate_title(soft_prompt, new_document):
     return response.text
 
 def suggest_title(component, description,pid):
-    similar_docs, new_doc_text = retrieve_similar_documents(component,description,pid)
+    similar_docs, new_doc_text,embedding = retrieve_similar_documents(component,description,pid)
     
     examples={'''Concatenation of string variables slow compared to strings themselves''':['''JavaScript Engine''','''Ill be uploading a test case with various tests of string concatenation.  ; Mozilla (build 2000040308) shows good performance with all the ones that uses ; strings directly; e.g. string1 + string2.  its the last three it has ; problems with; they use string variables (e.g. var1 + var 2) in the ; concatenation.; ; try it out for yourselves.  all numberical values shown in the form fields is ; the execution time in millseconds.  the four tests on the left hand side; and ; the 2 at the top on the right hand side finished in around 1650ms on my P3/450. ;  this is just the same speed as Netscape Comm 4.72.  On the last three tests on ; the right hand side NC4.72 uses 7000ms; 10000ms and around 4500ms respectively; ; while Mozilla suddenly uses 10000ms; 14750ms and 5500ms on the same three tests. ;  Im slightly surprised by this sudden large increase in execution time.; ; the test results are very positive compared to IE5.01 though; except for the ; three tests with variables in them.  the 4 tests on the left hand side; from top ; to bottom; finish in around 5.5s; 9s; 12.5s and 16s in IE5.01.  in other words; ; a nearly linear increase in usage for each string that gets added.  the two top ; tests on the right hand side finish in around 9.3s and 20s; a _huge_ difference ; from both Mozilla and Communicator.  the last three tests; with variables; ; execute at just about the same speed as Communicator though (the last one ; actually about a second faster).'''],'''Linux/Slackware: undefined iostream symbols; app wont start''':['''HTML: Parser''','''johnny:~/mozilla/package# ./mozilla-apprunner.sh; MOZILLA_FIVE_HOME=/root/mozilla/package;   LD_LIBRARY_PATH=/root/mozilla/package:/usr/local/rvplayer5.0;       MOZ_PROGRAM=./apprunner;         moz_debug=0;      moz_debugger=; ./apprunner: error in loading shared libraries; /root/mozilla/package/libraptorhtmlpars.so: undefined symbol:; __vt_8iostream.3ios; ; I am running Slackware 4.0 and never have had any luck running any; of these milestone releases.  This was the M7 attempt.; Just thought you should know.; Thanks; Johnny O''']}
     
@@ -97,9 +97,12 @@ def suggest_title(component, description,pid):
             soft_prompt[k] = v
     
     generated_title = generate_title(soft_prompt, new_doc_text)
-    return f"{generated_title}"
+    return {
+        "title": f"{generated_title}",
+        "embedding": embedding
+    }
 
-def infer(component,title,description,pid=None,mode="priority"):
+def infer(component,title="",description="",pid=None,mode="priority"):
     if mode=="title":
         return suggest_title(component, description,pid)
     # BERT embedding
@@ -121,7 +124,7 @@ def infer(component,title,description,pid=None,mode="priority"):
 
     # Predict
     prediction = xgb_model.predict(test_df,iteration_range=(0, 130))
-    return f"Predicted Priority: {int(prediction[0])}"
+    return f"{int(prediction[0])}"
 
 # Gradio interface
 iface = gr.Interface(
